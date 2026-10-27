@@ -12,6 +12,10 @@ permalink: /sitemap.xml
   {%- for p in pubs %}
   <url><loc>{{ p.url | prepend: site_root }}</loc>{% if p.last_modified %}<lastmod>{{ p.last_modified | date: "%Y-%m-%d" }}</lastmod>{% endif %}</url>
   {%- endfor %}
+  <url><loc>{{ site_root }}/tutorials/</loc></url>
+  {%- for t in site.tutorials %}
+  <url><loc>{{ t.url | prepend: site_root }}</loc><lastmod>{{ t.last_modified | default: t.date | date: "%Y-%m-%d" }}</lastmod></url>
+  {%- endfor %}
   <url><loc>{{ site_root }}/teaching/</loc></url>
   <url><loc>{{ site_root }}/impressum/</loc></url>
   <url><loc>{{ site_root }}/privacy/</loc></url>

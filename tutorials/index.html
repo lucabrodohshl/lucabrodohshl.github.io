@@ -1,0 +1,46 @@
+---
+title: Tutorials
+seo_title: "Tutorials on LTL, Model Checking and Formal Verification — Brodo Luca"
+description: "Technical tutorials by Luca Brodo on formal verification: detecting redundant LTL requirements, property refinement and model checking with Spot."
+permalink: /tutorials/
+---
+{%- assign site_root = site.url | append: site.baseurl -%}
+<header class="row page-head">
+  <div class="row__label"></div>
+  <div class="row__body">
+    <h1>Tutorials</h1>
+    <p class="lede">Hands-on guides to the methods behind my <a href="{{ '/research/' | relative_url }}">research</a>, with runnable examples. Each tutorial links to the peer-reviewed paper it builds on.</p>
+  </div>
+</header>
+
+{%- assign tutorials = site.tutorials | sort: "date" | reverse %}
+<section class="row" aria-labelledby="all-tutorials">
+  <h2 class="row__label" id="all-tutorials">All tutorials</h2>
+  <div class="row__body">
+    <ol class="pub-list">
+      {%- for t in tutorials %}
+      {% include tutorial-entry.html tutorial=t %}
+      {%- endfor %}
+    </ol>
+  </div>
+</section>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": "{{ site_root }}/tutorials/#page",
+  "url": "{{ site_root }}/tutorials/",
+  "name": "Tutorials by {{ site.author.name }}",
+  "isPartOf": { "@id": "{{ site_root }}/#website" },
+  "author": { "@type": "Person", "@id": "{{ site_root }}/#person", "name": {{ site.author.name | jsonify }} },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {%- for t in tutorials %}
+      { "@type": "ListItem", "position": {{ forloop.index }}, "url": "{{ t.url | prepend: site_root }}", "name": {{ t.title | jsonify }} }{% unless forloop.last %},{% endunless %}
+      {%- endfor %}
+    ]
+  }
+}
+</script>

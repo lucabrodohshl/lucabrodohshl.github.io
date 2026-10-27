@@ -28,6 +28,7 @@ license: https://creativecommons.org/licenses/by/4.0/
 license_label: "CC BY 4.0"
 featured: true   # shown under "Selected publications"
 featured_order: 2  # position in the selected list
+tutorial: ltl-property-redundancy   # slug in _tutorials/, linked from the paper page
 research_area: property-refinement   # id from _data/research.yml (Research page grouping)
 topics: [Property refinement, LTL, Model checking]
 keywords:

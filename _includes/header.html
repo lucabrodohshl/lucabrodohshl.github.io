@@ -1,5 +1,6 @@
 {%- assign nav_url = page.url -%}
 {%- if page.collection == "publications" -%}{%- assign nav_url = "/publications/" -%}{%- endif -%}
+{%- if page.collection == "tutorials" -%}{%- assign nav_url = "/tutorials/" -%}{%- endif -%}
 <header class="site-header">
   <div class="container site-header__inner">
     <a class="site-name" href="{{ '/' | relative_url }}">Luca Brodo</a>

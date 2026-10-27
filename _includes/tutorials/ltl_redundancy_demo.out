@@ -1,0 +1,17 @@
+R6: UNSATISFIABLE - fix it, never use it to cover others
+R7: VALID (tautology) - constrains nothing
+
+Refinement relations (stronger => weaker):
+  R1 is equivalent to R2
+  R3 refines R4
+  R3 refines R5
+  R4 refines R5
+
+Retained after pairwise refinement: R1, R3, R8, R9, R10
+  R2 is covered by R1
+  R4 is covered by R3
+  R5 is covered by R3
+  R10 is implied by the conjunction of R1, R3, R8, R9
+
+Properties to model-check: R1, R3, R8, R9
+Check: the retained set implies every satisfiable requirement.

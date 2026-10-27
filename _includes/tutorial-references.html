@@ -1,0 +1,9 @@
+{%- comment -%}
+  Numbered bibliography from the tutorial's `references` front matter.
+  Each entry gets the fragment #ref-<id> for in-text citations.
+{%- endcomment -%}
+<ol class="references">
+  {%- for r in page.references %}
+  <li id="ref-{{ r.id }}">{{ r.authors }}.{% if r.year %} {{ r.year }}.{% endif %} {% if r.doi or r.url %}<a href="{% if r.doi %}https://doi.org/{{ r.doi }}{% else %}{{ r.url }}{% endif %}">{{ r.title }}</a>{% else %}{{ r.title }}{% endif %}.{% if r.container %} <cite>{{ r.container }}</cite>{% endif %}{% if r.detail %}, {{ r.detail }}{% endif %}.{% if r.doi %} <span class="muted">doi:{{ r.doi }}</span>{% endif %}{% if r.accessed %} <span class="muted">Accessed {{ r.accessed }}.</span>{% endif %}</li>
+  {%- endfor %}
+</ol>

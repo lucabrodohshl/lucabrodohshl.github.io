@@ -1,0 +1,6 @@
+{%- comment -%}
+  Sets `reading_minutes` from include.content (rendered HTML), at about
+  220 words per minute, rounded up. Code listings are counted as text.
+{%- endcomment -%}
+{%- assign reading_words = include.content | strip_html | number_of_words -%}
+{%- assign reading_minutes = reading_words | divided_by: 220.0 | ceil -%}

@@ -1,0 +1,580 @@
+---
+# ---- Tutorial record ---------------------------------------------------------
+# The file name (without .html) is the slug and the URL: /tutorials/<slug>/
+# Title, metadata, table of contents, JSON-LD and the card on /tutorials/ are
+# generated from this front matter (see INSTRUCTIONS.md).
+title: "How to Reduce Requirements Redundancy Using LTL Property Refinement"
+seo_title: "How to Detect Redundant Requirements with LTL and Spot | Tutorial"
+description: "Learn how to detect redundant LTL requirements, check semantic implication with Spot, and eliminate unnecessary verification tasks using property refinement."
+kicker: "Formal verification"
+lede: "A practical guide to finding requirements that are already implied by others: formalize them in Linear Temporal Logic, compare them by language inclusion with the Spot library, and model-check a smaller set of properties without losing any guarantee."
+card_summary: "Detect redundant and equivalent LTL requirements by semantic implication, check them with the Spot Python library, and reduce the number of properties that must be model-checked. Includes a runnable example and the theory of property refinement."
+date: 2026-10-27
+last_modified: 2026-10-27
+based_on: property-refinement-ltl-fse-2026
+proficiency: Intermediate
+dependencies: "Python 3 with the Spot library (example tested with Spot 2.14.5)"
+keywords:
+  - requirements redundancy
+  - redundant LTL properties
+  - LTL property refinement
+  - LTL implication
+  - LTL language inclusion
+  - requirements subsumption
+  - minimal sufficient set
+  - Spot
+  - model checking
+  - Büchi automata
+  - specification debt
+about:
+  - Linear Temporal Logic
+  - Requirements engineering
+  - Model checking
+  - Formal verification
+  - Property refinement
+toc:
+  - { id: quick-answer, title: "Quick answer" }
+  - { id: what-is-requirements-redundancy, title: "What is requirements redundancy?" }
+  - { id: ltl-for-requirements, title: "LTL for requirements" }
+  - { id: ltl-property-refinement, title: "What is LTL property refinement?" }
+  - { id: detect-redundant-ltl-with-spot, title: "Detect redundant LTL requirements with Spot" }
+  - { id: property-set-reduction, title: "From pairwise implication to property-set reduction" }
+  - { id: simplification-vs-refinement, title: "Why not just simplify LTL formulas?" }
+  - { id: research-fse-2026, title: "Research: Property Refinement in LTL (FSE 2026)" }
+  - { id: common-mistakes, title: "Common mistakes and limitations" }
+  - { id: faq, title: "Frequently asked questions" }
+  - { id: summary, title: "Summary" }
+  - { id: further-reading, title: "Further reading and citation" }
+references:
+  - id: brodo2026
+    authors: "Luca Brodo, Giuseppe Scalora, and Stefan Henkler"
+    year: 2026
+    title: "Property Refinement in Linear Temporal Logic: Formal Semantics and Algorithms for Software Verification"
+    container: "Proceedings of the ACM on Software Engineering"
+    detail: "3, FSE, Article FSE120, 2698–2719 (FSE 2026)"
+    doi: "10.1145/3808127"
+    schema_type: ScholarlyArticle
+  - id: pnueli1977
+    authors: "Amir Pnueli"
+    year: 1977
+    title: "The Temporal Logic of Programs"
+    container: "18th Annual Symposium on Foundations of Computer Science (SFCS 1977)"
+    detail: "IEEE, 46–57"
+    doi: "10.1109/SFCS.1977.32"
+    schema_type: ScholarlyArticle
+  - id: baier2008
+    authors: "Christel Baier and Joost-Pieter Katoen"
+    year: 2008
+    title: "Principles of Model Checking"
+    detail: "MIT Press"
+    schema_type: Book
+  - id: clarke1999
+    authors: "Edmund M. Clarke, Orna Grumberg, and Doron A. Peled"
+    year: 1999
+    title: "Model Checking"
+    detail: "MIT Press"
+    schema_type: Book
+  - id: vardi1986
+    authors: "Moshe Y. Vardi and Pierre Wolper"
+    year: 1986
+    title: "An Automata-Theoretic Approach to Automatic Program Verification"
+    container: "Proceedings of the First Symposium on Logic in Computer Science (LICS 1986)"
+    detail: "IEEE Computer Society, 332–344"
+    schema_type: ScholarlyArticle
+  - id: sistla1985
+    authors: "A. Prasad Sistla and Edmund M. Clarke"
+    year: 1985
+    title: "The Complexity of Propositional Linear Temporal Logics"
+    container: "Journal of the ACM"
+    detail: "32, 3, 733–749"
+    doi: "10.1145/3828.3837"
+    schema_type: ScholarlyArticle
+  - id: duretlutz2022
+    authors: "Alexandre Duret-Lutz, Etienne Renault, Maximilien Colange, Florian Renkin, Alexandre Gbaguidi Aisse, Philipp Schlehuber-Caissier, Thomas Medioni, Antoine Martin, Jérôme Dubois, Clément Gillard, and Henrich Lauko"
+    year: 2022
+    title: "From Spot 2.0 to Spot 2.10: What’s New?"
+    container: "Computer Aided Verification (CAV 2022)"
+    detail: "LNCS 13372, Springer, 174–187"
+    doi: "10.1007/978-3-031-13188-2_9"
+    schema_type: ScholarlyArticle
+  - id: spot-contains
+    authors: "Spot developers"
+    accessed: "October 2026"
+    title: "Spot documentation: Testing for language inclusion and equivalence (contains.ipynb)"
+    url: "https://spot.lre.epita.fr/ipynb/contains.html"
+    schema_type: WebPage
+  - id: spot-ltlfilt
+    authors: "Spot developers"
+    accessed: "October 2026"
+    title: "Spot documentation: ltlfilt"
+    url: "https://spot.lre.epita.fr/ltlfilt.html"
+    schema_type: WebPage
+  - id: spot-install
+    authors: "Spot developers"
+    accessed: "October 2026"
+    title: "Spot documentation: Installing Spot"
+    url: "https://spot.lre.epita.fr/install.html"
+    schema_type: WebPage
+  - id: somenzi2000
+    authors: "Fabio Somenzi and Roderick Bloem"
+    year: 2000
+    title: "Efficient Büchi Automata from LTL Formulae"
+    container: "Computer Aided Verification (CAV 2000)"
+    detail: "LNCS 1855, Springer, 248–263"
+    doi: "10.1007/10722167_21"
+    schema_type: ScholarlyArticle
+  - id: kupferman2003
+    authors: "Orna Kupferman and Moshe Y. Vardi"
+    year: 2003
+    title: "Vacuity Detection in Temporal Model Checking"
+    container: "International Journal on Software Tools for Technology Transfer"
+    detail: "4, 2, 224–233"
+    doi: "10.1007/s100090100062"
+    schema_type: ScholarlyArticle
+  - id: barnat2016
+    authors: "Jiří Barnat, Petr Bauch, Nikola Beneš, Luboš Brim, Jan Beran, and Tomáš Kratochvíla"
+    year: 2016
+    title: "Analysing Sanity of Requirements for Avionics Systems"
+    container: "Formal Aspects of Computing"
+    detail: "28, 1, 45–63"
+    doi: "10.1007/s00165-015-0348-9"
+    schema_type: ScholarlyArticle
+  - id: dureja2018
+    authors: "Rohit Dureja and Kristin Yvonne Rozier"
+    year: 2018
+    title: "More Scalable LTL Model Checking via Discovering Design-Space Dependencies (D³)"
+    container: "Tools and Algorithms for the Construction and Analysis of Systems (TACAS 2018)"
+    detail: "LNCS 10805, Springer, 309–327"
+    doi: "10.1007/978-3-319-89960-2_17"
+    schema_type: ScholarlyArticle
+  - id: cabodi2011
+    authors: "Gianpiero Cabodi and Sergio Nocco"
+    year: 2011
+    title: "Optimized Model Checking of Multiple Properties"
+    container: "Design, Automation & Test in Europe (DATE 2011)"
+    detail: "IEEE, 1–4"
+    doi: "10.1109/DATE.2011.5763279"
+    schema_type: ScholarlyArticle
+  - id: juergens2010
+    authors: "Elmar Juergens, Florian Deissenboeck, Martin Feilkas, Benjamin Hummel, Bernhard Schaetz, Stefan Wagner, Christoph Domann, and Jonathan Streit"
+    year: 2010
+    title: "Can Clone Detection Support Quality Assessments of Requirements Specifications?"
+    container: "Proceedings of the 32nd ACM/IEEE International Conference on Software Engineering (ICSE 2010), Vol. 2"
+    detail: "ACM, 79–88"
+    doi: "10.1145/1810295.1810308"
+    schema_type: ScholarlyArticle
+  - id: pelanek2007
+    authors: "Radek Pelánek"
+    year: 2007
+    title: "BEEM: Benchmarks for Explicit Model Checkers"
+    container: "Model Checking Software (SPIN 2007)"
+    detail: "LNCS 4595, Springer, 263–267"
+    doi: "10.1007/978-3-540-73370-6_17"
+    schema_type: ScholarlyArticle
+---
+{%- assign paper = site.publications | where: "slug", page.based_on | first -%}
+{%- assign icse = site.publications | where: "slug", "minimal-sufficient-temporal-properties-icse-2026" | first -%}
+{%- assign ctl = site.publications | where: "slug", "property-refinement-ctl" | first -%}
+
+<section id="quick-answer" aria-labelledby="quick-answer-title">
+  <h2 id="quick-answer-title">Quick answer: how do you reduce redundancy in requirements?</h2>
+  <div class="answer">
+    <p>To reduce redundancy in software requirements that are formalized in <strong>Linear Temporal Logic (LTL)</strong>, compare them by meaning rather than by wording. For each pair of properties, check whether every execution that satisfies one also satisfies the other, that is, whether their languages are included in each other: <span class="math">L(φ′) ⊆ L(φ)</span>. If a <em>satisfiable</em> property φ′ implies φ, then every system verified against φ′ also satisfies φ, so φ needs no separate model-checking run. It stays in the requirements document for traceability. Equivalent properties need to be verified only once, unsatisfiable ones must be fixed rather than relied on, and valid ones (tautologies) constrain nothing. The Spot library performs these checks with Büchi automata. This relation is <strong>property refinement</strong>, formalized for LTL by Brodo, Scalora and Henkler at FSE 2026 <a href="#ref-brodo2026">[1]</a>. It applies only after natural-language requirements have been formalized, and it does not catch every kind of duplication.</p>
+  </div>
+  <p>The rest of this tutorial explains each step: <a href="#what-is-requirements-redundancy">which kinds of redundancy exist</a>, <a href="#ltl-property-refinement">the formal definition of refinement</a>, <a href="#detect-redundant-ltl-with-spot">a runnable Spot example</a>, and <a href="#property-set-reduction">how pairwise checks become a reduced verification suite</a>.</p>
+</section>
+
+<section id="what-is-requirements-redundancy" aria-labelledby="what-is-requirements-redundancy-title">
+  <h2 id="what-is-requirements-redundancy-title">What is requirements redundancy?</h2>
+  <p>A requirement is <em>redundant</em> when the guarantee it expresses is already provided by other requirements in the same specification. Redundancy is a semantic notion: two requirements can be worded very differently and still say the same thing, or look almost identical and say different things. Distinguishing the following cases avoids most confusion.</p>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Kinds of overlap between formalized requirements, with short LTL examples (Spot syntax)</caption>
+      <thead>
+        <tr><th scope="col">Case</th><th scope="col">Example</th><th scope="col">Redundant?</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">1. Syntactically identical</th><td><code>G !(door_open &amp; moving)</code> written twice</td><td>Yes, trivially; a text comparison finds it</td></tr>
+        <tr><th scope="row">2. Logically equivalent</th><td><code>G !(door_open &amp; moving)</code> and <code>G (moving -&gt; !door_open)</code></td><td>Yes, each implies the other; verify one</td></tr>
+        <tr><th scope="row">3. Related by implication</th><td><code>G (request -&gt; X grant)</code> implies <code>G (request -&gt; F grant)</code></td><td>The weaker one is covered by the stronger one</td></tr>
+        <tr><th scope="row">4. Contradictory or unsatisfiable</th><td><code>G (request -&gt; grant) &amp; F (request &amp; !grant)</code></td><td>No: it is a specification defect that must be fixed</td></tr>
+        <tr><th scope="row">5. Overlapping, not redundant</th><td><code>G !(door_open &amp; moving)</code> and <code>G (error -&gt; !moving)</code> share <code>moving</code></td><td>No: neither implies the other</td></tr>
+        <tr><th scope="row">6. Redundant with respect to a set</th><td><code>G (error -&gt; !moving)</code> follows from <code>G (error -&gt; alarm)</code> together with <code>G (alarm -&gt; !moving)</code></td><td>Yes, but only jointly; no single property implies it</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Comparing strings or formula syntax only detects case 1. Cases 2, 3 and 6 require reasoning about all possible executions, because LTL formulas with different syntax can describe the same set of behaviours. Case 4 is the dangerous one: an unsatisfiable formula logically implies <em>every</em> other formula, so a naive implication check would declare it the "strongest" requirement and mark everything else as redundant.</p>
+
+  <h3 id="how-redundancy-accumulates">How redundancy accumulates: a realistic scenario</h3>
+  <p>Consider a lift controller developed over several years. The safety team writes "the door is never open while the car is moving". Years later, a legacy specification is merged in that says "whenever the car moves, the door is closed": the same requirement in different words. The control team specifies that each request is granted in the next control cycle, while product management, unaware of this, adds that every request is "eventually" granted. A fairness requirement from a certification checklist adds that repeated requests lead to repeated grants. Each requirement is reasonable on its own, each is formalized as an LTL property, and each becomes a separate model-checking task. Nobody notices that four of them add no assurance. The FSE 2026 paper calls this gradual accumulation of redundant and interdependent properties <strong>specification debt</strong> <a href="#ref-brodo2026">[1]</a>.</p>
+</section>
+
+<section id="ltl-for-requirements" aria-labelledby="ltl-for-requirements-title">
+  <h2 id="ltl-for-requirements-title">Introducing LTL for requirements verification</h2>
+  <p>Linear Temporal Logic, introduced to computer science by Pnueli <a href="#ref-pnueli1977">[2]</a>, describes properties of infinite executions. An execution is seen as a sequence of states, and each state is labelled with the <strong>atomic propositions</strong> that are true in it. For the lift controller we use six propositions:</p>
+  <ul>
+    <li><code>door_open</code>, <code>moving</code>: the door is open; the car is moving;</li>
+    <li><code>request</code>, <code>grant</code>: a request arrives; a request is served;</li>
+    <li><code>error</code>, <code>alarm</code>: a fault is detected; the alarm is on.</li>
+  </ul>
+  <p>Formulas combine propositions with Boolean connectives (<span class="math">¬, ∧, ∨, →</span>; in Spot syntax <code>!</code>, <code>&amp;</code>, <code>|</code>, <code>-&gt;</code>) and temporal operators:</p>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Temporal operators used in this tutorial</caption>
+      <thead>
+        <tr><th scope="col">Operator</th><th scope="col">Meaning at the current position</th><th scope="col">Example and plain-English reading</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><span class="math">X φ</span></th><td>φ holds at the next position</td><td><code>X grant</code>: a grant happens in the next step</td></tr>
+        <tr><th scope="row"><span class="math">F φ</span></th><td>φ holds now or at some later position ("finally")</td><td><code>F grant</code>: a grant happens eventually</td></tr>
+        <tr><th scope="row"><span class="math">G φ</span></th><td>φ holds now and at every later position ("globally")</td><td><code>G !(door_open &amp; moving)</code>: the door is never open while moving</td></tr>
+        <tr><th scope="row"><span class="math">φ U ψ</span></th><td>ψ eventually holds, and φ holds at every position before that ("until")</td><td><code>!moving U grant</code>: the car stays still until a grant happens</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Operators nest. Two common requirement patterns are <strong>safety</strong> ("something bad never happens") and <strong>response</strong> ("every trigger is eventually answered"):</p>
+  <p class="formula">G ¬(door_open ∧ moving)<span class="formula__note">Safety: in every state, the door is not open while the car is moving.</span></p>
+  <p class="formula">G (request → F grant)<span class="formula__note">Response: whenever a request arrives, a grant follows now or later.</span></p>
+  <p class="formula">GF request → GF grant<span class="formula__note">Fairness: if requests arrive infinitely often, grants happen infinitely often.</span></p>
+
+  <h3 id="ltl-semantics">Traces and languages</h3>
+  <p>Formally, for a set of atomic propositions <span class="math">A</span>, a <strong>trace</strong> (or word) is an infinite sequence <span class="math">σ = A₀A₁A₂…</span> with each <span class="math">Aᵢ ⊆ A</span>. The <strong>language</strong> of a formula is the set of traces that satisfy it:</p>
+  <p class="formula">L<sub>A</sub>(φ) = { σ ∈ (2<sup>A</sup>)<sup>ω</sup> | σ ⊨ φ }<span class="formula__note">The set of all infinite executions over the propositions A that satisfy φ.</span></p>
+  <p>A system model <span class="math">T</span> (for example a transition system) satisfies φ when every one of its executions does: <span class="math">T ⊨ φ</span> if and only if <span class="math">Traces(T) ⊆ L(φ)</span> <a href="#ref-baier2008">[3]</a>. A model checker decides this question, usually by translating ¬φ into a Büchi automaton and searching the product with the model for an accepting cycle <a href="#ref-vardi1986">[5]</a>. When a suite contains many properties, this is repeated once per property, which is exactly the cost that redundancy inflates.</p>
+</section>
+
+<section id="ltl-property-refinement" aria-labelledby="ltl-property-refinement-title">
+  <h2 id="ltl-property-refinement-title">What is LTL property refinement?</h2>
+  <p>Take <span class="math">φ₁ = G(p ∧ q)</span> ("p and q always hold") and <span class="math">φ₂ = G p</span> ("p always holds"). Every trace that satisfies φ₁ also satisfies φ₂, so <span class="math">L(φ₁) ⊆ L(φ₂)</span>. Logical implication between LTL formulas is exactly this language inclusion. Because satisfaction by a model is also an inclusion, it follows directly that</p>
+  <p class="formula">Traces(T) ⊆ L(φ₁) ⊆ L(φ₂)  ⟹  if T ⊨ φ₁ then T ⊨ φ₂<span class="formula__note">Verifying the stronger property establishes the weaker one, for any model T over the same propositions.</span></p>
+  <p>So for the same system, a successful check of φ₁ already establishes φ₂, and the separate check of φ₂ can be skipped. The argument does not depend on any particular model, which is why the analysis can run before a model exists.</p>
+
+  <h3 id="refinement-definition">The definition from the FSE 2026 paper</h3>
+  <div class="definition">
+    <p class="definition__title">Definition (LTL property refinement; Brodo, Scalora and Henkler <a href="#ref-brodo2026">[1]</a>, Def. 3.1)</p>
+    <p>Let φ′ and φ be LTL properties, interpreted over the common alphabet <span class="math">A</span> of all atomic propositions occurring in the suite. φ′ <em>refines</em> φ iff</p>
+    <ol type="a">
+      <li><span class="math">L<sub>A</sub>(φ′) ⊆ L<sub>A</sub>(φ)</span>, written <span class="math">φ′ ⪯ φ</span>; or</li>
+      <li><span class="math">L<sub>A</sub>(φ′) ⊆ L<sub>A</sub>(φ)</span> and <span class="math">L<sub>A</sub>(φ′) ≠ ∅</span>, written <span class="math">φ′ ⪯⁺ φ</span>.</li>
+    </ol>
+  </div>
+  <p>Form (a) is the classical notion. Form (b) adds a <strong>non-emptiness condition</strong>: the refining property must be satisfiable. Without it, a contradiction such as <span class="math">p ∧ ¬p</span>, whose language is empty, would refine every property, and a "reduced" suite consisting only of <code>false</code> would look sufficient while imposing no meaningful constraint. The paper's reduction method is built on the non-vacuous form ⪯⁺ <a href="#ref-brodo2026">[1]</a>.</p>
+  <p>The paper also shows that ⪯ is reflexive and transitive (a preorder), and anti-symmetric up to logical equivalence: <span class="math">φ₁ ⪯ φ₂</span> and <span class="math">φ₂ ⪯ φ₁</span> hold exactly when <span class="math">φ₁ ≡ φ₂</span>. Modulo equivalence the properties therefore form a lattice, with conjunction as meet and disjunction as join, and refinement is preserved when both sides are conjoined or disjoined with the same property <a href="#ref-brodo2026">[1]</a>. In practice this means:</p>
+  <ul>
+    <li><strong>Equivalence is mutual refinement.</strong> A cycle of refinements collapses into one equivalence class, and verifying any one member is enough.</li>
+    <li><strong>Transitivity saves checks.</strong> If φ₁ ⪯ φ₂ and φ₂ ⪯ φ₃, then φ₁ ⪯ φ₃ without a separate inclusion test.</li>
+  </ul>
+
+  <h3 id="stronger-and-weaker">Stronger and weaker properties: which one do you verify?</h3>
+  <p>The <em>stronger</em> property is the one with the smaller language: it allows fewer behaviours. Verification effort goes to the stronger property; the weaker one is covered.</p>
+  <div class="table-wrap">
+    <table>
+      <caption>Direction of refinement. Arrow: stronger ⪯⁺ weaker</caption>
+      <thead>
+        <tr><th scope="col">Stronger (verify)</th><th scope="col"></th><th scope="col">Weaker (covered)</th><th scope="col">Why</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="math">G(p ∧ q)</span></td><td aria-label="refines">⪯⁺</td><td><span class="math">G p</span></td><td>Always both implies always p.</td></tr>
+        <tr><td><span class="math">G p</span></td><td aria-label="refines">⪯⁺</td><td><span class="math">F p</span></td><td>If p holds everywhere, it holds somewhere.</td></tr>
+        <tr><td><span class="math">FG a</span></td><td aria-label="refines">⪯⁺</td><td><span class="math">F a</span></td><td>"Eventually always a" includes "eventually a" (example from the paper).</td></tr>
+        <tr><td><span class="math">G(request → X grant)</span></td><td aria-label="refines">⪯⁺</td><td><span class="math">G(request → F grant)</span></td><td>A grant in the next step is in particular a grant eventually.</td></tr>
+        <tr><td><span class="math">G ¬(door_open ∧ moving)</span></td><td aria-label="is equivalent to">≡</td><td><span class="math">G(moving → ¬door_open)</span></td><td>Same language: refinement holds in both directions, so verify one.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The converse never follows: knowing that <span class="math">G p</span> holds tells you nothing about <span class="math">G(p ∧ q)</span>. Reversing the direction is the most common error in practice, see <a href="#mistake-direction">common mistakes</a>.</p>
+</section>
+
+<section id="detect-redundant-ltl-with-spot" aria-labelledby="detect-redundant-ltl-with-spot-title">
+  <h2 id="detect-redundant-ltl-with-spot-title">Detect redundant LTL requirements using Spot</h2>
+  <p><a href="https://spot.lre.epita.fr/">Spot</a> is a C++ library with Python bindings for LTL and ω-automata <a href="#ref-duretlutz2022">[7]</a>. It translates LTL formulas into Büchi automata and offers language inclusion and equivalence checks, which is all that semantic redundancy detection needs. Spot can be installed, for example, from conda-forge (<code>conda install -c conda-forge spot</code>) or from the Debian and Fedora packages listed in its <a href="https://spot.lre.epita.fr/install.html">installation guide</a> <a href="#ref-spot-install">[10]</a>.</p>
+
+  <h3 id="spot-implication-check">Checking implication, equivalence and satisfiability</h3>
+  <p>One detail deserves attention. Spot's documentation states that <code>spot.contains(left, right)</code> checks whether the language of the <em>right</em> argument is included in the language of the <em>left</em> one <a href="#ref-spot-contains">[8]</a>. To test whether <code>stronger</code> implies <code>weaker</code>, the call is therefore <code>spot.contains(weaker, stronger)</code>:</p>
+  {% include code-block.html id="code-basics" label="ltl_implication_basics.py" file="tutorials/ltl_implication_basics.py" copy_name="Code" %}
+  {% include code-block.html id="code-basics-out" label="Output" file="tutorials/ltl_implication_basics.out" copy=false %}
+  <p>The first line is <code>True</code> because every trace in which p and q always hold is a trace in which p always holds. The second is <code>False</code>: a trace where p always holds but q is sometimes false satisfies <span class="math">G p</span> but not <span class="math">G(p ∧ q)</span>. <code>spot.are_equivalent</code> confirms that the two safety formulations describe the same language. The last line checks satisfiability with an <em>emptiness check</em>: <code>spot.translate</code> builds an automaton for the formula, and <code>is_empty()</code> returns <code>True</code> if it accepts no trace at all. <span class="math">G p ∧ F ¬p</span> is unsatisfiable, so its automaton is empty.</p>
+
+  <h3 id="spot-suite-example">A complete example on a requirement suite</h3>
+  <div class="callout">
+    <p class="callout__title">Simplified illustration</p>
+    <p>The following script is a small, self-contained teaching example written for this tutorial. It demonstrates the semantic idea of property refinement with public Spot functions. It is not the tool evaluated in the FSE 2026 paper and does not implement its complete, optimized methodology; see <a href="#paper-methodology">how the paper operationalizes refinement</a>.</p>
+  </div>
+  <p>The script takes the ten requirements of the lift controller, filters unsatisfiable and valid formulas, computes all pairwise refinements, groups equivalent properties, and reports which checks are redundant. Because many pairs are compared, it uses <code>spot.language_containment_checker()</code>, which caches the automaton built for each formula; its <code>contains(left, right)</code> method has the same argument order as <code>spot.contains</code> <a href="#ref-spot-contains">[8]</a>.</p>
+  {% include code-block.html id="code-demo" label="ltl_redundancy_demo.py" file="tutorials/ltl_redundancy_demo.py" copy_name="Code" %}
+  <p>Running it with Python 3.14 and Spot 2.14.5 prints the following (the full run takes well under a second):</p>
+  {% include code-block.html id="code-demo-out" label="Output" file="tutorials/ltl_redundancy_demo.out" copy=false %}
+
+  <h3 id="spot-output-explained">What the output means</h3>
+  <dl class="facts">
+    <div><dt>R6</dt><dd>Unsatisfiable: it demands that every request is granted immediately <em>and</em> that some request is not granted. It is excluded before any comparison, because it would otherwise "imply" every requirement. It goes back to the requirement owners.</dd></div>
+    <div><dt>R7</dt><dd>Valid (a tautology): every trace either contains a grant or never does. It constrains nothing, so no model-checking run is needed, but its presence is worth questioning.</dd></div>
+    <div><dt>R1, R2</dt><dd>Equivalent. One verification task covers both; R1 is kept as the representative.</dd></div>
+    <div><dt>R3, R4, R5</dt><dd>A refinement chain <span class="math">R3 ⪯⁺ R4 ⪯⁺ R5</span>. Verifying R3 ("granted in the next step") establishes R4 and R5.</dd></div>
+    <div><dt>R10</dt><dd>Not implied by any <em>single</em> property, so pairwise refinement keeps it. The optional extra step shows that R8 ∧ R9 implies it (an error raises the alarm, and the alarm stops the car). See <a href="#joint-entailment">pairwise refinement versus joint entailment</a>.</dd></div>
+  </dl>
+  <p>The final assertion checks the result: the conjunction of the retained properties implies every satisfiable requirement of the original suite.</p>
+
+  <h3 id="spot-command-line">The same check on the command line</h3>
+  <p>Spot's <code>ltlfilt</code> tool offers the same implication test without writing Python <a href="#ref-spot-ltlfilt">[9]</a>. It prints the input formula only if it matches the filter, so the second command prints nothing:</p>
+  {% include code-block.html id="code-ltlfilt" label="Shell" file="tutorials/ltlfilt_imply.sh" copy_name="Commands" %}
+  {% include code-block.html id="code-ltlfilt-out" label="Output" file="tutorials/ltlfilt_imply.out" copy=false %}
+</section>
+
+<section id="property-set-reduction" aria-labelledby="property-set-reduction-title">
+  <h2 id="property-set-reduction-title">From pairwise implication to property-set reduction</h2>
+  <p>Pairwise checks become useful when their results are combined into a decision for the whole suite: which properties must still be model-checked, and which are guaranteed by the ones that are. Here is the running suite with its plain-English meaning.</p>
+
+  <div class="table-wrap">
+    <table>
+      <caption>Original suite: ten requirements, ten model-checking tasks</caption>
+      <thead>
+        <tr><th scope="col">ID</th><th scope="col">LTL (Spot syntax)</th><th scope="col">Plain English</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">R1</th><td><code>G !(door_open &amp; moving)</code></td><td>The door is never open while the car is moving.</td></tr>
+        <tr><th scope="row">R2</th><td><code>G (moving -&gt; !door_open)</code></td><td>Whenever the car moves, the door is closed.</td></tr>
+        <tr><th scope="row">R3</th><td><code>G (request -&gt; X grant)</code></td><td>Every request is granted in the next step.</td></tr>
+        <tr><th scope="row">R4</th><td><code>G (request -&gt; F grant)</code></td><td>Every request is eventually granted.</td></tr>
+        <tr><th scope="row">R5</th><td><code>GF request -&gt; GF grant</code></td><td>If requests keep arriving, grants keep happening.</td></tr>
+        <tr><th scope="row">R6</th><td><code>G (request -&gt; grant) &amp; F (request &amp; !grant)</code></td><td>Requests are granted immediately, and some request is not granted.</td></tr>
+        <tr><th scope="row">R7</th><td><code>F grant | G !grant</code></td><td>A grant happens at some point, or never.</td></tr>
+        <tr><th scope="row">R8</th><td><code>G (error -&gt; alarm)</code></td><td>Every detected error raises the alarm.</td></tr>
+        <tr><th scope="row">R9</th><td><code>G (alarm -&gt; !moving)</code></td><td>While the alarm is on, the car does not move.</td></tr>
+        <tr><th scope="row">R10</th><td><code>G (error -&gt; !moving)</code></td><td>When an error is detected, the car is not moving.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="refinement-graph">The refinement graph</h3>
+  <figure class="figure">
+    <svg class="diagram" viewBox="0 0 640 320" role="img" aria-labelledby="refgraph-title refgraph-desc">
+      <title id="refgraph-title">Refinement relations in the example suite</title>
+      <desc id="refgraph-desc">R3 refines R4, which refines R5. R1 and R2 are equivalent. R8 and R9 together imply R10. Retained properties R1, R3, R8 and R9 are highlighted.</desc>
+      <defs>
+        <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="arrow" d="M0,0 L10,5 L0,10 z"/>
+        </marker>
+      </defs>
+      <text class="label" x="10" y="22">Propositions {request, grant}</text>
+      <g class="node node--keep"><rect x="10" y="32" width="180" height="48" rx="3"/><text x="20" y="52" font-weight="600">R3</text><text x="20" y="70">G(request → X grant)</text></g>
+      <g class="node"><rect x="230" y="32" width="180" height="48" rx="3"/><text x="240" y="52" font-weight="600">R4</text><text x="240" y="70">G(request → F grant)</text></g>
+      <g class="node"><rect x="450" y="32" width="180" height="48" rx="3"/><text x="460" y="52" font-weight="600">R5</text><text x="460" y="70">GF req. → GF grant</text></g>
+      <line class="edge" x1="190" y1="56" x2="228" y2="56" marker-end="url(#arrowhead)"/>
+      <line class="edge" x1="410" y1="56" x2="448" y2="56" marker-end="url(#arrowhead)"/>
+
+      <text class="label" x="10" y="132">Propositions {door_open, moving, error, alarm}</text>
+      <g class="node node--keep"><rect x="10" y="142" width="180" height="48" rx="3"/><text x="20" y="162" font-weight="600">R1</text><text x="20" y="180">G ¬(door_open ∧ moving)</text></g>
+      <g class="node"><rect x="230" y="142" width="180" height="48" rx="3"/><text x="240" y="162" font-weight="600">R2</text><text x="240" y="180">G(moving → ¬door_open)</text></g>
+      <line class="edge" x1="192" y1="166" x2="228" y2="166" marker-start="url(#arrowhead)" marker-end="url(#arrowhead)"/>
+      <text class="label" x="203" y="158">≡</text>
+
+      <g class="node node--keep"><rect x="10" y="252" width="180" height="48" rx="3"/><text x="20" y="272" font-weight="600">R8</text><text x="20" y="290">G(error → alarm)</text></g>
+      <g class="node node--keep"><rect x="230" y="252" width="180" height="48" rx="3"/><text x="240" y="272" font-weight="600">R9</text><text x="240" y="290">G(alarm → ¬moving)</text></g>
+      <g class="node"><rect x="450" y="252" width="180" height="48" rx="3"/><text x="460" y="272" font-weight="600">R10</text><text x="460" y="290">G(error → ¬moving)</text></g>
+      <path class="edge edge--joint" d="M100,252 C100,222 540,222 540,250" marker-end="url(#arrowhead)"/>
+      <line class="edge edge--joint" x1="410" y1="276" x2="448" y2="276" marker-end="url(#arrowhead)"/>
+      <text class="label" x="250" y="218">R8 ∧ R9 jointly imply R10</text>
+    </svg>
+    <figcaption>Refinement graph of the example. Solid arrows point from a stronger to a weaker property (transitive edge R3 → R5 omitted); the double arrow marks equivalence; dashed arrows mark a joint implication that pairwise refinement does not see. Highlighted: the properties that are finally model-checked. R6 (unsatisfiable) and R7 (valid) are filtered out before the graph is built.</figcaption>
+  </figure>
+
+  <h3 id="reduced-suite">Redundant versus retained checks</h3>
+  <div class="table-wrap">
+    <table>
+      <caption>Outcome of the analysis for each requirement</caption>
+      <thead>
+        <tr><th scope="col">ID</th><th scope="col">Decision</th><th scope="col">Reason</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">R1</th><td><span class="tag tag--keep">model-check</span></td><td>Representative of the equivalence class {R1, R2}.</td></tr>
+        <tr><th scope="row">R2</th><td><span class="tag tag--drop">covered</span></td><td>Equivalent to R1.</td></tr>
+        <tr><th scope="row">R3</th><td><span class="tag tag--keep">model-check</span></td><td>No other property refines it.</td></tr>
+        <tr><th scope="row">R4</th><td><span class="tag tag--drop">covered</span></td><td>R3 ⪯⁺ R4.</td></tr>
+        <tr><th scope="row">R5</th><td><span class="tag tag--drop">covered</span></td><td>R3 ⪯⁺ R5 (also via R4, by transitivity).</td></tr>
+        <tr><th scope="row">R6</th><td><span class="tag tag--fix">fix requirement</span></td><td>Unsatisfiable; no system with at least one execution can satisfy it.</td></tr>
+        <tr><th scope="row">R7</th><td><span class="tag tag--drop">no check needed</span></td><td>Valid: holds on every trace.</td></tr>
+        <tr><th scope="row">R8</th><td><span class="tag tag--keep">model-check</span></td><td>No other property refines it.</td></tr>
+        <tr><th scope="row">R9</th><td><span class="tag tag--keep">model-check</span></td><td>No other property refines it.</td></tr>
+        <tr><th scope="row">R10</th><td><span class="tag tag--drop">covered jointly</span></td><td>Kept by pairwise refinement; covered by R8 ∧ R9 if joint entailment is also checked.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Pairwise refinement reduces ten model-checking tasks to five (R1, R3, R8, R9, R10) and flags one defective requirement. The additional joint-entailment step brings it to four. Why the four retained checks suffice for this example: for any model T, if T satisfies R1, R3, R8 and R9, then</p>
+  <ul>
+    <li><span class="math">Traces(T) ⊆ L(R1) = L(R2)</span>, so R2 holds;</li>
+    <li><span class="math">Traces(T) ⊆ L(R3) ⊆ L(R4) ⊆ L(R5)</span>, so R4 and R5 hold;</li>
+    <li><span class="math">Traces(T) ⊆ L(R8) ∩ L(R9) ⊆ L(R10)</span>, because at every position an error implies the alarm and the alarm implies a stopped car;</li>
+    <li>R7 holds on every trace anyway.</li>
+  </ul>
+  <p>R6 cannot be established for any model with at least one execution, so it is reported for correction rather than "covered". The requirements R2, R4, R5, R7 and R10 stay in the specification; only their separate verification runs are skipped.</p>
+
+  <h3 id="paper-methodology">How the FSE 2026 paper operationalizes refinement</h3>
+  <p>The script above shows the idea. The paper turns it into a two-stage methodology inserted between requirement formalization and verification <a href="#ref-brodo2026">[1]</a>:</p>
+  <ol>
+    <li><strong>Partitioning and filtering (Algorithm 1).</strong> For each property, a Büchi automaton is constructed. Properties whose language is empty (contradictions) or universal (tautologies) are removed. The remaining properties are partitioned into classes of properties connected by shared atomic propositions, using a Union-Find structure. The paper shows that this loses no refinement: if <span class="math">φ′ ⪯⁺ φ</span> and φ is not valid, the two share at least one atomic proposition.</li>
+    <li><strong>Refinement analysis per class (Algorithm 2).</strong> Within each class, language inclusion is checked for pairs of properties and recorded as edges of a refinement graph, with transitivity used to expand known relations instead of re-checking them. The most refined properties are the <em>source nodes</em> of the graph; cycles, which by anti-symmetry consist of equivalent properties, contribute one arbitrarily chosen representative.</li>
+    <li><strong>Minimal sufficient subset.</strong> The union of the source nodes of all classes, Φ′, is the set that is verified. The paper proves that it is sufficient (its satisfaction guarantees the whole suite) and minimal in the sense that no selected property is refined by another selected property. All original properties are kept for documentation, traceability and certification; Φ′ is used only to optimize verification.</li>
+  </ol>
+  <p>The tutorial script mirrors steps 1–3 in a naive way: it checks every ordered pair without exploiting transitivity, uses no further automata optimizations, and is only meant for small suites. The paper's prototype relies on Spot for LTL-to-Büchi translation, automata simplification and inclusion checking, and the authors stress that the approach is tool-agnostic.</p>
+
+  <h3 id="joint-entailment">Pairwise refinement versus joint entailment</h3>
+  <p>Refinement compares one property with one property. Some redundancy only appears when several properties are combined, as with R10. Detecting it requires checking whether a <em>conjunction</em> of other properties implies a candidate, and there are exponentially many subsets to consider. Barnat et al. follow this subset-based route for avionics requirements and report that it becomes very expensive even for small suites <a href="#ref-barnat2016">[13]</a>; the FSE 2026 paper discusses this trade-off and deliberately builds on pairwise refinement, which scales quadratically in the number of properties (plus the cost of the automata) <a href="#ref-brodo2026">[1]</a>.</p>
+  <p>The optional step in the script is a cheap compromise for small suites: it tries to drop each retained property if the conjunction of the others implies it. This is sound, because every dropped property is implied by properties that remain implied by the final set, but the result depends on the order of the properties and is not guaranteed to be the smallest possible set. It should not be described as optimal.</p>
+</section>
+
+<section id="simplification-vs-refinement" aria-labelledby="simplification-vs-refinement-title">
+  <h2 id="simplification-vs-refinement-title">Why not just simplify LTL formulas?</h2>
+  <p>Several established techniques reduce verification cost or improve specification quality. They act on different objects and answer different questions.</p>
+  <div class="table-wrap">
+    <table>
+      <caption>Comparison of techniques related to redundant requirements and verification cost</caption>
+      <thead>
+        <tr><th scope="col">Technique</th><th scope="col">What it changes</th><th scope="col">Problem it solves</th><th scope="col">What it does not do</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Syntactic duplicate detection</th><td>Nothing; compares text or syntax trees</td><td>Finds identical or near-identical requirements, also in natural language <a href="#ref-juergens2010">[16]</a></td><td>Recognize equivalent or implied formulas with different syntax</td></tr>
+        <tr><th scope="row">LTL formula simplification</th><td>One formula, rewritten into an equivalent, simpler one <a href="#ref-somenzi2000">[11]</a>, <a href="#ref-duretlutz2022">[7]</a></td><td>Smaller automata and faster checks for that formula</td><td>Reason about the relation between separate requirements</td></tr>
+        <tr><th scope="row">Equivalence checking</th><td>Nothing; pairwise <span class="math">L(φ) = L(ψ)</span></td><td>Finds semantic duplicates</td><td>Detect strictly stronger or weaker properties</td></tr>
+        <tr><th scope="row">Pairwise implication / subsumption</th><td>Nothing; pairwise <span class="math">L(φ) ⊆ L(ψ)</span></td><td>Finds properties implied by others <a href="#ref-dureja2018">[14]</a>, <a href="#ref-barnat2016">[13]</a></td><td>On its own, exclude vacuous implication by unsatisfiable formulas</td></tr>
+        <tr><th scope="row">Property refinement and suite reduction</th><td>The set of properties that is model-checked</td><td>Fewer independent verification tasks, model-independent, with non-vacuous refinement <a href="#ref-brodo2026">[1]</a></td><td>Change the model, or capture all joint entailments</td></tr>
+        <tr><th scope="row">Vacuity detection</th><td>Nothing; analyses one property, typically against a model</td><td>Finds sub-formulas that do not matter for satisfaction <a href="#ref-kupferman2003">[12]</a></td><td>Compare different properties of a suite</td></tr>
+        <tr><th scope="row">Model abstraction, state-space reduction</th><td>The model or its exploration</td><td>Fewer states to explore per check <a href="#ref-baier2008">[3]</a>, <a href="#ref-clarke1999">[4]</a></td><td>Reduce the number of properties</td></tr>
+        <tr><th scope="row">Multi-property model checking</th><td>How several checks share work</td><td>Reuses information across the checks of many properties <a href="#ref-cabodi2011">[15]</a></td><td>Decide that a property needs no check at all</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The key distinction: <strong>property-set reduction targets the number of independently verified specifications, while state-space reduction targets the model or its exploration.</strong> The two are orthogonal and can be combined. The FSE 2026 implementation itself uses Spot's formula and automata simplifications as a preprocessing step <a href="#ref-brodo2026">[1]</a>.</p>
+  <p>The difference between simplification and refinement is easy to see with Spot:</p>
+  {% include code-block.html id="code-simplify" label="Shell" file="tutorials/ltlfilt_simplify.sh" copy_name="Commands" %}
+  {% include code-block.html id="code-simplify-out" label="Output" file="tutorials/ltlfilt_simplify.out" copy=false %}
+  <p><code>--unique</code> keeps both safety formulations because their text differs. Simplifying a conjunction of requirements can absorb an implied conjunct, but the result is a single rewritten formula: it no longer tells you <em>which</em> requirement was redundant, it cannot be traced back to the requirement documents, and checking one large conjunction is not the same as maintaining a list of independent verification tasks. Refinement keeps each requirement intact and only changes which of them are checked.</p>
+</section>
+
+<section id="research-fse-2026" aria-labelledby="research-fse-2026-title">
+  <h2 id="research-fse-2026-title">Research: Property Refinement in Linear Temporal Logic (FSE 2026)</h2>
+  <div class="paper-card">
+    <p class="paper-card__kicker">Peer-reviewed paper · {{ paper.venue_short }}</p>
+    <p class="paper-card__title"><a href="{{ paper.url | relative_url }}">{{ paper.title }}</a></p>
+    <p class="paper-card__meta">{{ paper.authors | join: ", " }}. <cite>{{ paper.citation_venue }}</cite> {{ paper.volume }}, {{ paper.issue }}, Article FSE120, {{ paper.firstpage }}–{{ paper.lastpage }}, 2026. DOI: <a href="https://doi.org/{{ paper.doi }}">{{ paper.doi }}</a></p>
+    <div class="paper-card__actions">
+      <a class="button" href="https://doi.org/{{ paper.doi }}">Read the research paper</a>
+      <a href="{{ paper.url | relative_url }}">Abstract, PDF and BibTeX</a>
+    </div>
+  </div>
+  <p>This tutorial is an introduction to the ideas of the paper above, presented at the ACM International Conference on the Foundations of Software Engineering (FSE 2026) and published in <cite>Proceedings of the ACM on Software Engineering</cite>. The paper makes three contributions <a href="#ref-brodo2026">[1]</a>:</p>
+  <ul>
+    <li><strong>Formal semantics.</strong> A language-inclusion definition of property refinement for LTL with a non-emptiness condition, and its algebraic properties: preorder, anti-symmetry modulo equivalence, lattice structure, and composability with conjunction and disjunction.</li>
+    <li><strong>Specification partitioning and refinement analysis.</strong> An algorithm that filters contradictions and tautologies, partitions the suite by shared atomic propositions, and builds a refinement graph within each class, with a complexity analysis.</li>
+    <li><strong>Minimal sufficient subset.</strong> A formal problem statement and the proof that the selected most-refined properties are sufficient and minimal with respect to refinement, together with an empirical evaluation.</li>
+  </ul>
+
+  <h3 id="experimental-results">Reported experimental results</h3>
+  <p>The evaluation uses 141 benchmarks derived from the BEEM collection <a href="#ref-pelanek2007">[17]</a>: mutual exclusion protocols (45), communication protocols (27), distributed algorithms (20), scheduling and resource allocation (24) and general model-checking examples (25). Suites range from a handful of properties to more than 600 distinct formulas. Each benchmark is model-checked twice with the Spot–LTSmin–DVE backend, once with the original suite and once with the reduced one, with identical models and settings. As reported in the paper (Table 1):</p>
+  <ul>
+    <li>the number of required verification tasks fell in 109 of 141 benchmarks (77.3%), by <strong>up to 75%</strong>, with a mean of about 36% and a median of 50%;</li>
+    <li>model checking of the reduced suite was 1.63× faster on average (median 1.75×, best 4.2×);</li>
+    <li>including the cost of the refinement analysis, 137 of 141 benchmarks (97%) had a net benefit within a 3% measurement tolerance; across all benchmarks, about 20.6 hours of model checking were saved for about 12 minutes of analysis;</li>
+    <li>the refinement overhead had a median of 0.035% of the baseline verification time, a mean of 2.22% and a worst case of 54.5%.</li>
+  </ul>
+  <p>These are results on the evaluated benchmarks, not general performance guarantees. The benefit depends on how much redundancy a suite contains (the paper reports a correlation between reduction and net gain) and on how expensive each model-checking run is. Because the analysis is done once on the specification while verification is repeated for every model revision, its cost is amortized over a development lifecycle.</p>
+
+  <h3 id="limitations">Limitations and trade-offs</h3>
+  <ul>
+    <li><strong>Automata construction.</strong> LTL satisfiability and inclusion are PSPACE-complete <a href="#ref-sistla1985">[6]</a>, and translating a formula into a Büchi automaton is exponential in the formula size in the worst case. The paper names caching, parallelization and sound syntactic implication rules as mitigations and leaves more sophisticated heuristics to future work.</li>
+    <li><strong>When it does not pay off.</strong> In the 4 benchmarks with a net loss, large and complex property suites were combined with comparatively small models, so the one-time analysis could not be amortized by cheaper verification.</li>
+    <li><strong>Partitioning.</strong> Most evaluated benchmarks were monolithic and produced only one to three classes; the authors expect partitioning to matter more for industrial systems with distinct components.</li>
+    <li><strong>Model independence.</strong> Refinement holds over all traces. Relations that hold only under a specific model's constraints are not detected, which is the price of an analysis that remains valid when the model changes.</li>
+  </ul>
+  {%- if icse or ctl %}
+  <p>Related work on this site: {% if icse %}the ICSE 2026 companion paper <a href="{{ icse.url | relative_url }}"><cite>{{ icse.title }}</cite></a>{% endif %}{% if icse and ctl %} and {% endif %}{% if ctl %}<a href="{{ ctl.url | relative_url }}"><cite>{{ ctl.title }}</cite></a>, which carries refinement over to branching-time logic{% endif %}. All papers in this line of work are listed on the <a href="{{ '/research/' | relative_url }}#property-refinement">research page on property refinement and specification debt</a>.</p>
+  {%- endif %}
+</section>
+
+<section id="common-mistakes" aria-labelledby="common-mistakes-title">
+  <h2 id="common-mistakes-title">Common mistakes and limitations</h2>
+
+  <h3 id="mistake-direction">Reversing the implication direction</h3>
+  <p>The stronger property (smaller language) is verified and the weaker one is covered, never the reverse. With Spot, <code>spot.contains(a, b)</code> asks whether <span class="math">L(b) ⊆ L(a)</span>, i.e. whether b implies a. Test both directions on a known pair such as <code>G p</code> and <code>F p</code> before trusting a pipeline.</p>
+
+  <h3 id="mistake-unsatisfiable">Treating unsatisfiable properties as the strongest specification</h3>
+  <p>An unsatisfiable property implies everything, so it must be filtered out before refinement analysis. This is the purpose of the non-emptiness condition in ⪯⁺. An unsatisfiable requirement is a defect to report, not a property that covers others.</p>
+
+  <h3 id="mistake-textual">Confusing semantic redundancy with textual similarity</h3>
+  <p><code>G (request -&gt; X grant)</code> and <code>G (request -&gt; F grant)</code> look alike and are related, but they are not equivalent; <code>G !(door_open &amp; moving)</code> and <code>G (moving -&gt; !door_open)</code> look different and are equivalent. Only a semantic check decides.</p>
+
+  <h3 id="mistake-assumptions">Mixing incompatible system assumptions</h3>
+  <p>Refinement is only meaningful between properties that refer to the same system and the same interpretation of the atomic propositions. If <code>grant</code> means "request accepted" in one document and "door opened for a passenger" in another, a formal implication between the formulas says nothing about the requirements. Harmonize the vocabulary first. Likewise, properties written under different environment assumptions, or for different model variants, must not be mixed in one analysis.</p>
+
+  <h3 id="mistake-model-constraints">Confusing model-independent implication with implication under model constraints</h3>
+  <p>Refinement as described here holds for all traces. Under a particular model, more properties may turn out to be related (for instance because the model never issues two requests in a row), but such relations must be established with the model and become invalid when the model changes. Model-dependent approaches such as D³ address this setting with additional model-checking runs <a href="#ref-dureja2018">[14]</a>.</p>
+
+  <h3 id="mistake-documentation">Removing requirements instead of skipping their checks</h3>
+  <p>A covered property is not deleted. It still documents an intention, links to its source requirement, may be needed for certification evidence, and becomes relevant again if the stronger property is later weakened or removed. Keep it in the specification, record which retained property covers it, and re-run the analysis whenever the suite changes. Reviewing the redundancy itself is often valuable: it can reveal duplicated elicitation or an accidental strengthening by one team.</p>
+
+  <h3 id="mistake-joint">Confusing pairwise implication with joint entailment</h3>
+  <p>A pairwise analysis keeps a property that is implied only by a combination of others (R10 in the example). Claiming that a pairwise result is the smallest possible sufficient set is therefore wrong in general. Joint entailment can be checked for small suites, at a higher cost.</p>
+
+  <h3 id="mistake-cost">Ignoring the cost of automata construction</h3>
+  <p>Most practical formulas translate quickly, but some produce very large automata. Measure the analysis time, set time limits for individual checks, cache automata (as <code>language_containment_checker</code> does), and treat a timed-out check as "unknown", which means the property is kept.</p>
+</section>
+
+<section id="faq" class="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">Frequently asked questions</h2>
+
+  <h3 id="faq-detect-automatically">How can I detect redundant software requirements automatically?</h3>
+  <p>For textual duplicates, clone and similarity detection on the requirement documents works. For semantic redundancy, formalize the requirements, for example in LTL, then check satisfiability and pairwise language inclusion with a tool such as Spot. A property implied by a satisfiable, retained property is redundant for verification. See <a href="#detect-redundant-ltl-with-spot">the Spot example</a>.</p>
+
+  <h3 id="faq-reduce-model-checking">How can I reduce the number of LTL properties in model checking?</h3>
+  <p>Remove unsatisfiable properties (and fix them), skip valid ones, verify one representative per equivalence class, and skip every property refined by a retained satisfiable property. This is the reduction to a minimal sufficient subset described in <a href="#property-set-reduction">property-set reduction</a> and in the FSE 2026 paper <a href="#ref-brodo2026">[1]</a>.</p>
+
+  <h3 id="faq-equivalent">How do I know whether two LTL formulas are equivalent?</h3>
+  <p>Two formulas are equivalent when they have the same language, i.e. each implies the other. In Spot, <code>spot.are_equivalent(f, g)</code> checks this directly; <code>ltlfilt --equivalent-to</code> does the same on the command line.</p>
+
+  <h3 id="faq-spot-implies">Can Spot check whether one LTL formula implies another?</h3>
+  <p>Yes. <code>spot.contains(weaker, stronger)</code> returns <code>True</code> if <code>stronger</code> implies <code>weaker</code>, because it tests whether the language of its second argument is included in that of its first. For many checks, <code>spot.language_containment_checker()</code> caches automata. See <a href="#spot-implication-check">checking implication with Spot</a>.</p>
+
+  <h3 id="faq-minimal-sufficient">What is a minimal sufficient set of LTL properties?</h3>
+  <p>A subset Φ′ of a suite Φ is <em>sufficient</em> if every system satisfying all properties in Φ′ satisfies all properties in Φ, and <em>minimal</em> if no property can be removed without losing sufficiency <a href="#ref-brodo2026">[1]</a>. The FSE 2026 method computes such a set from the most refined properties of each class, with minimality relative to the refinement relation; redundancy that only arises jointly is a separate question (see <a href="#joint-entailment">joint entailment</a>).</p>
+
+  <h3 id="faq-simplification">What is the difference between LTL simplification and property refinement?</h3>
+  <p>Simplification rewrites one formula into an equivalent, simpler formula. Refinement compares different formulas and decides which ones need to be verified at all. They are complementary; see <a href="#simplification-vs-refinement">the comparison</a>.</p>
+
+  <h3 id="faq-guarantees">Does reducing redundant properties preserve verification guarantees?</h3>
+  <p>Yes, for refinements that are actually established: if <span class="math">φ′ ⪯⁺ φ</span> and the model satisfies φ′, it satisfies φ, because <span class="math">Traces(T) ⊆ L(φ′) ⊆ L(φ)</span>. The guarantee depends on correct formalization, a consistent vocabulary, and on treating unknown or timed-out checks conservatively.</p>
+
+  <h3 id="faq-natural-language">Can this approach work with natural-language requirements?</h3>
+  <p>Not directly. Semantic refinement needs formal properties. Natural-language requirements first have to be formalized, manually or with specification patterns and tool support, and the formalization should be reviewed. Once formalized, the analysis can also be traced back to the original requirements to explain where redundancy comes from.</p>
+</section>
+
+<section id="summary" aria-labelledby="summary-title">
+  <h2 id="summary-title">Summary: what you learned</h2>
+  <ul>
+    <li>Requirements redundancy is semantic: equivalence, implication and joint entailment cannot be found by comparing text.</li>
+    <li>For LTL, implication is language inclusion, <span class="math">L(φ′) ⊆ L(φ)</span>, and verifying the stronger property establishes the weaker one for any model.</li>
+    <li>Property refinement adds non-emptiness, <span class="math">L(φ′) ≠ ∅</span>, so unsatisfiable formulas cannot vacuously cover others.</li>
+    <li>With Spot, <code>spot.contains(weaker, stronger)</code> tests implication, <code>spot.are_equivalent</code> tests equivalence, and <code>spot.translate(f).is_empty()</code> tests unsatisfiability.</li>
+    <li>Combining pairwise refinements yields a reduced verification suite; covered requirements stay in the specification.</li>
+    <li>The FSE 2026 paper formalizes this as the minimal sufficient subset problem and reports up to 75% fewer verification tasks on 141 benchmarks <a href="#ref-brodo2026">[1]</a>.</li>
+  </ul>
+</section>
+
+<section id="further-reading" aria-labelledby="further-reading-title">
+  <h2 id="further-reading-title">Further reading and citation</h2>
+  <p>If this tutorial helps your work, please cite the research paper rather than this page:</p>
+  <div class="citation">
+    <div class="citation__bar">
+      <span class="citation__label" id="bibtex-label">BibTeX: {{ paper.venue_short }} paper</span>
+      <button type="button" class="citation__copy" data-copy-target="bibtex" data-copy-name="BibTeX" aria-describedby="bibtex-label" hidden>Copy</button>
+    </div>
+    <pre id="bibtex" class="citation__code" tabindex="0" aria-labelledby="bibtex-label"><code>{{ paper.bibtex | strip | escape }}</code></pre>
+    <p class="citation__status" role="status" aria-live="polite"></p>
+  </div>
+
+  <h3 id="references">References</h3>
+  {% include tutorial-references.html %}
+</section>

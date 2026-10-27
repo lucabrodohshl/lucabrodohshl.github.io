@@ -1,0 +1,21 @@
+{%- comment -%}
+  A code or output listing with an optional Copy button (same component and
+  script as the BibTeX box). Usage:
+    {% include code-block.html id="demo" label="ltl_redundancy_demo.py" file="tutorials/ltl_redundancy_demo.py" %}
+    {% include code-block.html id="demo-out" label="Output" file="tutorials/ltl_redundancy_demo.out" copy=false %}
+  `file` is a path below _includes/, so the published listing is the exact
+  file that was run.
+{%- endcomment -%}
+{%- capture code_text -%}{% include {{ include.file }} %}{%- endcapture -%}
+<div class="citation code-block{% if include.copy == false %} code-block--output{% endif %}">
+  <div class="citation__bar">
+    <span class="citation__label" id="{{ include.id }}-label">{{ include.label }}</span>
+    {%- unless include.copy == false %}
+    <button type="button" class="citation__copy" data-copy-target="{{ include.id }}" data-copy-name="{{ include.copy_name | default: 'Code' }}" aria-describedby="{{ include.id }}-label" hidden>Copy</button>
+    {%- endunless %}
+  </div>
+  <pre id="{{ include.id }}" class="citation__code" tabindex="0" aria-labelledby="{{ include.id }}-label"><code>{{ code_text | strip | escape }}</code></pre>
+  {%- unless include.copy == false %}
+  <p class="citation__status" role="status" aria-live="polite"></p>
+  {%- endunless %}
+</div>

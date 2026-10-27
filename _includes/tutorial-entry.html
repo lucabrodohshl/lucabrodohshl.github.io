@@ -1,0 +1,23 @@
+{%- comment -%}
+  One tutorial card, styled like a bibliography entry. Usage:
+    {% include tutorial-entry.html tutorial=t %}
+{%- endcomment -%}
+{%- assign t = include.tutorial -%}
+{%- assign t_paper = site.publications | where: "slug", t.based_on | first -%}
+{%- include reading-time.html content=t.content -%}
+<li class="pub">
+  <p class="pub__title"><a href="{{ t.url | relative_url }}">{{ t.title }}</a></p>
+  <p class="pub__venue">
+    <span class="pub__venue-name">Tutorial</span>
+    <span class="sep" aria-hidden="true">·</span><time datetime="{{ t.date | date: '%Y-%m-%d' }}">{{ t.date | date: "%B %Y" }}</time>
+    <span class="sep" aria-hidden="true">·</span><span>{{ reading_minutes }} min read</span>
+  </p>
+  <p class="pub__desc">{{ t.card_summary }}</p>
+  <ul class="pub__links inline-list" aria-label="Links for this tutorial">
+    <li><a href="{{ t.url | relative_url }}">Read the tutorial<span class="visually-hidden">: {{ t.title }}</span></a></li>
+    {%- if t_paper %}
+    <li><a href="{{ t_paper.url | relative_url }}">Based on the {{ t_paper.venue_short }} paper<span class="visually-hidden">: {{ t_paper.title }}</span></a></li>
+    {%- if t_paper.doi %}<li><a href="https://doi.org/{{ t_paper.doi }}">Paper DOI<span class="visually-hidden">: {{ t_paper.title }}</span></a></li>{% endif %}
+    {%- endif %}
+  </ul>
+</li>

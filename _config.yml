@@ -46,6 +46,10 @@ collections:
   # Teaching materials: one Markdown file per item, listed on /teaching/.
   teaching:
     output: false
+  # Tutorials: one file per tutorial, listed as cards on /tutorials/.
+  tutorials:
+    output: true
+    permalink: /tutorials/:name/
 
 defaults:
   - scope:
@@ -53,6 +57,11 @@ defaults:
       type: publications
     values:
       layout: paper
+  - scope:
+      path: ""
+      type: tutorials
+    values:
+      layout: tutorial
   - scope:
       path: ""
     values:

@@ -14,7 +14,13 @@ This file is a short optional index. The canonical content is the HTML site and 
 - [Home]({{ site_root }}/): introduction, research overview, selected publications, contact
 - [Research]({{ site_root }}/research/): the three research directions and their papers
 - [Publications]({{ site_root }}/publications/): all papers with abstracts, PDFs, DOIs and BibTeX
+- [Tutorials]({{ site_root }}/tutorials/): technical tutorials on the methods behind the research
 - [Teaching]({{ site_root }}/teaching/): materials and resources for students
+
+## Tutorials
+{% for t in site.tutorials %}
+- [{{ t.title }}]({{ t.url | prepend: site_root }}): {{ t.card_summary }}
+{%- endfor %}
 
 ## Papers
 {% assign pubs = site.publications | sort: "date" | reverse %}

@@ -41,6 +41,10 @@ layout: default
         {%- if page.zenodo %}
         <li><a href="{{ page.zenodo }}">Zenodo record</a></li>
         {%- endif %}
+        {%- assign tut = site.tutorials | where: "slug", page.tutorial | first %}
+        {%- if tut %}
+        <li><a href="{{ tut.url | relative_url }}">Tutorial: detect redundant LTL requirements with Spot</a></li>
+        {%- endif %}
         {%- if page.code %}
         <li><a href="{{ page.code }}">{{ page.code_label | default: "Code and data" }}</a></li>
         {%- endif %}

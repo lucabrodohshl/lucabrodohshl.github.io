@@ -10,7 +10,7 @@
 {{ content }}
 </main>
 {% include footer.html %}
-{%- if page.collection == "publications" %}
+{%- if page.collection == "publications" or page.collection == "tutorials" %}
 <script src="{{ '/assets/js/copy-citation.js' | relative_url }}" defer></script>
 {%- endif %}
 </body>

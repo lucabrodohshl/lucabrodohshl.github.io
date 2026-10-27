@@ -31,6 +31,16 @@ permalink: /research/
       {%- endfor %}
     </ol>
     {%- endif %}
+    {%- assign area_tuts = "" | split: "" %}
+    {%- for t in site.tutorials %}{% assign tp = area_pubs | where: "slug", t.based_on | first %}{% if tp %}{% assign area_tuts = area_tuts | push: t %}{% endif %}{% endfor %}
+    {%- if area_tuts.size > 0 %}
+    <h3 class="subhead">Tutorials</h3>
+    <ol class="pub-list">
+      {%- for t in area_tuts %}
+      {% include tutorial-entry.html tutorial=t %}
+      {%- endfor %}
+    </ol>
+    {%- endif %}
   </div>
 </section>
 {%- endfor %}

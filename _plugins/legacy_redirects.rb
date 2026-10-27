@@ -20,6 +20,7 @@ module LegacyRedirects
         page.html? && !page.data["noindex"] && !page.url.start_with?("/#{PREFIX}/")
       end
       targets += site.collections["publications"].docs
+      targets += site.collections["tutorials"].docs
 
       targets.each do |item|
         stub = Jekyll::PageWithoutAFile.new(site, site.source, File.join(PREFIX, item.url), "index.html")

@@ -1,0 +1,4 @@
+G(moving -> !door_open)
+G!(door_open & moving)
+G(!request | Xgrant)
+G((alarm | !error) & (!alarm | !moving))

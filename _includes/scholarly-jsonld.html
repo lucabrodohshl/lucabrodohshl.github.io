@@ -22,7 +22,7 @@
       {%- if author == site.author.name %},
       "@id": "{{ site_root }}/#person",
       "url": "{{ site_root }}/",
-      "sameAs": [{{ site.author.orcid | jsonify }}]
+      "sameAs": [{{ site.author.orcid | jsonify }}, {{ site.author.google_scholar | jsonify }}]
       {%- endif %}
     }{% unless forloop.last %},{% endunless %}
     {%- endfor %}

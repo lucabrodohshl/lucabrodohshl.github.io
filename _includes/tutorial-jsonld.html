@@ -23,7 +23,7 @@
     "@id": "{{ site_root }}/#person",
     "name": {{ site.author.name | jsonify }},
     "url": "{{ site_root }}/",
-    "sameAs": [{{ site.author.orcid | jsonify }}],
+    "sameAs": [{{ site.author.orcid | jsonify }}, {{ site.author.google_scholar | jsonify }}],
     "affiliation": { "@type": "CollegeOrUniversity", "name": {{ site.author.affiliation | jsonify }}, "url": {{ site.author.affiliation_url | jsonify }} }
   },
   "datePublished": "{{ page.date | date: '%Y-%m-%d' }}",

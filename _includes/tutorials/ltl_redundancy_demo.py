@@ -15,7 +15,7 @@ SUITE = {
     "R4": "G (request -> F grant)",           # product requirements
     "R5": "GF request -> GF grant",           # fairness requirement
     "R6": "G (request -> grant) & F (request & !grant)",  # merged by mistake
-    "R7": "F grant | G !grant",               # vacuous requirement
+    "R7": "F grant | G !grant",               # tautology
     "R8": "G (error -> alarm)",               # diagnostics team
     "R9": "G (alarm -> !moving)",             # safety team
     "R10": "G (error -> !moving)",            # safety team
@@ -32,19 +32,27 @@ lcc = spot.language_containment_checker()
 
 
 def refines(strong, weak):
-    """True iff L(strong) is a subset of L(weak), i.e. strong implies weak."""
+    """Test implication; callers must also check satisfiability."""
     return lcc.contains(weak, strong)
 
 
 # Step 1: filter unsatisfiable and valid formulas (automata emptiness).
 candidates = []
+rejected = []
 for rid, f in formulas.items():
     if spot.translate(f).is_empty():
+        rejected.append(rid)
         print(f"{rid}: UNSATISFIABLE - fix it, never use it to cover others")
     elif spot.translate(spot.formula.Not(f)).is_empty():
         print(f"{rid}: VALID (tautology) - constrains nothing")
     else:
         candidates.append(rid)
+
+# Individually satisfiable requirements may still contradict each other.
+# Stop rather than use an inconsistent conjunction to infer redundancy.
+candidate_conjunction = spot.formula.And([formulas[r] for r in candidates])
+if spot.translate(candidate_conjunction).is_empty():
+    raise ValueError("The remaining requirements are jointly inconsistent; review them.")
 
 # Step 2: pairwise refinement. After step 1, a formula can only refine
 # another one if both share at least one atomic proposition.
@@ -83,8 +91,8 @@ for rid in candidates:
         print(f"  {rid} is covered by {', '.join(covers)}")
 
 # Optional extra step, beyond pairwise refinement: is a retained property
-# implied by the conjunction of the others? (Greedy, so the result depends
-# on the order and is not guaranteed to be the smallest possible set.)
+# implied by the conjunction of the others? This single pass can depend on
+# the order and does not guarantee a set of minimum cardinality.
 for rid in list(retained):
     others = [formulas[r] for r in retained if r != rid]
     if others and refines(spot.formula.And(others), formulas[rid]):
@@ -93,5 +101,6 @@ for rid in list(retained):
 
 print("\nProperties to model-check:", ", ".join(retained))
 conjunction = spot.formula.And([formulas[r] for r in retained])
-assert all(refines(conjunction, formulas[rid]) for rid in candidates)
-print("Check: the retained set implies every satisfiable requirement.")
+assert not spot.translate(conjunction).is_empty()
+assert all(refines(conjunction, f) for rid, f in formulas.items() if rid not in rejected)
+print("Check: the retained set is satisfiable and implies every non-rejected requirement.")

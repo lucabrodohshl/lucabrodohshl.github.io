@@ -375,25 +375,17 @@ main:focus { outline: none; }
 
 /* Header uses the row grid; the body gets a wider text column and a sticky
    table of contents in the label column on wide screens. */
-.tutorial__kicker {
-  margin-bottom: 0.6rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-2);
-}
 .tutorial__header .row__body { max-width: 44rem; }
-.tutorial__header .facts div { grid-template-columns: 7rem 1fr; }
+.tutorial__byline { margin-top: 1.25rem; font-size: 0.9rem; color: var(--text-2); }
+.tutorial__updated { display: block; margin-top: 0.2rem; }
+.tutorial__prerequisites { margin-top: 0.75rem; font-size: 0.93rem; color: var(--text-2); }
 
 .tutorial__layout { border-top: 1px solid var(--rule); padding-top: 2.25rem; }
 
 .toc {
   margin-bottom: 2.5rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  background: var(--code-bg);
+  padding: 0 0 1.5rem;
+  border-bottom: 1px solid var(--rule);
   font-size: 0.93rem;
 }
 .toc__title {
@@ -401,14 +393,17 @@ main:focus { outline: none; }
   font-family: var(--sans);
   font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: var(--text-2);
 }
-.toc__list { margin: 0; padding-left: 1.3rem; line-height: 1.45; }
+.toc__list { margin: 0; padding: 0; list-style: none; line-height: 1.45; }
 .toc__list li + li { margin-top: 0.4rem; }
 .toc__list a { text-decoration: none; }
 .toc__list a:hover { text-decoration: underline; }
+
+@media (max-width: 859px) {
+  .toc__list { columns: 2; column-gap: 1.5rem; }
+  .toc__list li { break-inside: avoid; }
+}
 
 @media (min-width: 860px) {
   .tutorial__layout {
@@ -428,11 +423,11 @@ main:focus { outline: none; }
     background: none;
     font-size: 0.88rem;
   }
-  .toc__list { padding-left: 1.15rem; }
 }
 
 /* Long-form documentation text */
-.doc > section + section { margin-top: 3.25rem; padding-top: 2.25rem; border-top: 1px solid var(--rule); }
+.doc > section + section { margin-top: 2.75rem; padding-top: 2rem; border-top: 1px solid var(--rule); }
+.doc section[id] { scroll-margin-top: 1.5rem; }
 .doc h2 { font-size: 1.55rem; line-height: 1.3; margin-bottom: 1rem; scroll-margin-top: 1rem; }
 .doc h3 { font-size: 1.15rem; line-height: 1.4; margin: 2rem 0 0.5rem; scroll-margin-top: 1rem; }
 .doc h2 + h3 { margin-top: 0.5rem; }
@@ -447,7 +442,10 @@ main:focus { outline: none; }
 .doc > section > * + figure,
 .doc > section > * + .callout,
 .doc > section > * + .paper-card,
-.doc .citation + * { margin-top: 1.25rem; }
+.doc .citation + *,
+.doc .table-wrap + p,
+.doc .figure + p,
+.doc .paper-card + p { margin-top: 1.25rem; }
 .doc code {
   font-family: var(--mono);
   font-size: 0.86em;
@@ -466,7 +464,6 @@ main:focus { outline: none; }
 .formula {
   margin: 1rem 0;
   padding: 0.75rem 1rem;
-  border-left: 3px solid var(--accent);
   background: var(--code-bg);
   font-family: var(--serif);
   font-size: 1.08rem;
@@ -476,30 +473,17 @@ main:focus { outline: none; }
 
 .definition {
   margin-top: 1.25rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
+  padding: 0.25rem 0 0.25rem 1.1rem;
+  border-left: 2px solid var(--rule);
 }
 .definition__title { font-weight: 600; }
 .definition ol { margin-bottom: 0; }
 
 .callout {
-  padding: 0.9rem 1.1rem;
-  border: 1px solid var(--rule);
-  border-left: 3px solid var(--text-2);
-  border-radius: 3px;
-  font-size: 0.97rem;
-}
-.callout__title { font-weight: 600; margin-bottom: 0.25rem; }
-.callout--paper { border-left-color: var(--accent); }
-.callout p + p { margin-top: 0.6rem; }
-
-.answer {
-  padding: 1.1rem 1.25rem;
-  border: 1px solid var(--rule);
-  border-left: 3px solid var(--accent);
-  border-radius: 3px;
-  background: var(--code-bg);
+  padding-left: 1rem;
+  border-left: 2px solid var(--rule);
+  font-size: 0.93rem;
+  color: var(--text-2);
 }
 
 .table-wrap { overflow-x: auto; }
@@ -525,25 +509,13 @@ main:focus { outline: none; }
 .doc thead th { border-bottom: 2px solid var(--rule); font-weight: 600; }
 .doc tbody th { font-weight: 600; }
 .doc td code, .doc th code { white-space: nowrap; overflow-wrap: normal; }
-.tag {
-  display: inline-block;
-  padding: 0 0.4em;
-  border-radius: 3px;
-  font-size: 0.85em;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.tag--keep { color: #1f5130; background: #e6f2ea; }
-.tag--drop { color: var(--text-2); background: #eef0f2; }
-.tag--fix { color: var(--award); background: #f7e8e8; }
-
-.figure { margin: 0; }
-.figure svg { display: block; width: 100%; height: auto; max-width: 40rem; }
+.figure { margin: 0; overflow-x: auto; }
+.figure svg { display: block; width: 100%; height: auto; min-width: 36rem; max-width: 40rem; }
 .figure figcaption { margin-top: 0.6rem; font-size: 0.9rem; color: var(--text-2); max-width: 68ch; }
-.diagram text { font-family: var(--mono); font-size: 13px; fill: var(--text); }
+.diagram text { font-family: var(--mono); font-size: 12px; fill: var(--text); }
 .diagram .label { font-family: var(--sans); font-size: 12px; fill: var(--text-2); }
 .diagram .node rect { fill: var(--bg); stroke: var(--text-2); stroke-width: 1; }
-.diagram .node--keep rect { fill: #e6f2ea; stroke: #1f5130; stroke-width: 1.5; }
+.diagram .node--keep rect { fill: #edf2f7; stroke: var(--accent); stroke-width: 1.5; }
 .diagram .edge { stroke: var(--accent); stroke-width: 1.5; fill: none; }
 .diagram .edge--joint { stroke-dasharray: 5 4; }
 .diagram .arrow { fill: var(--accent); }
@@ -551,24 +523,12 @@ main:focus { outline: none; }
 .paper-card {
   padding: 1.1rem 1.25rem;
   border: 1px solid var(--rule);
-  border-top: 3px solid var(--accent);
-  border-radius: 3px;
 }
-.paper-card__kicker { font-size: 0.85rem; color: var(--text-2); }
-.paper-card__title { margin-top: 0.25rem; font-family: var(--serif); font-size: 1.12rem; line-height: 1.4; }
+.paper-card__title { font-family: var(--serif); font-size: 1.12rem; line-height: 1.4; }
 .paper-card__title a { text-decoration: none; }
 .paper-card__title a:hover { text-decoration: underline; }
 .paper-card__meta { margin-top: 0.3rem; font-size: 0.93rem; color: var(--text-2); }
 .paper-card__actions { margin-top: 0.8rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.25rem; font-size: 0.95rem; }
-.button {
-  display: inline-block;
-  padding: 0.4rem 0.9rem;
-  border-radius: 3px;
-  background: var(--accent);
-  color: #fff;
-  text-decoration: none;
-}
-.button:hover { background: var(--accent-hover); color: #fff; }
 
 .faq h3 { margin-top: 1.75rem; }
 
